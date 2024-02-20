@@ -1,0 +1,42 @@
+name: Deploy to Firebase Hosting on PR
+'on': pull_request
+jobs:
+  build_and_preview:
+    if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Use Node.js v16.14.2
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.14.2
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SDK_KEY }}
+
+      - name: Install NPM dependencies
+        run: npm install
+
+      - name: Install Firebase Tools
+        run: npm install -g firebase-tools
+
+      - name: Run unit testing
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Assign project to Firebase config
+        run: firebase use ${{ secrets.FIREBASE_PROJECT_ID }}
+
+      - name: Assign target to Firebase Hosting Multisite config
+        run: firebase target:apply hosting user ${{ secrets.FIREBASE_USER_TARGET_NAME }}
+
+      - name: Deploy to Firebase
+        run: firebase deploy --only hosting

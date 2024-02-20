@@ -1,0 +1,21 @@
+<div
+    class="bg-white rounded w-100 position-relative"
+    *ngIf="data && data.image && data.title && data.description && data.background != undefined">
+    <div
+        class="p-4 d-flex align-items-center justify-content-between"
+        style="background-position: right center; background-size: cover; background-repeat: no-repeat;"
+        [ngStyle]="data.background ? {'background-image': 'url(' + data.image + ')'} : {}"
+    >
+        <span [ngClass]="data.background ? 'w-75' : 'w-50'">
+            <h2 class="h1 text-primary">{{ data.title }}</h2>
+            <span class="h4 text-light-dark m-0 font-weight-normal">{{ data.description }}</span>
+        </span>
+        <img *ngIf="!data.background" class="w-25" [src]="data.image" />
+        <a
+            routerLink="/inicio"
+            [queryParams]="{banner_id: data.query}"
+            class="stretched-link"
+            *ngIf="data.query"
+        ></a>
+    </div>
+</div>
